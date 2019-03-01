@@ -21,8 +21,17 @@ flasks = [
 ]
 
 @app.route('/api/v1/flasks', methods=['GET'])
-def get_tasks():
+def get_flasks():
     return jsonify({'flasks': flasks})
+
+from flask import abort
+
+@app.route('/api/v1/flasks/<int:flask_id>', methods=['GET'])
+def get_flask_by_id(flask_id):
+    flask = [flask for flask in flasks if flask['id'] == flask_id]
+    if len(flask) == 0:
+        abort(404)
+    return jsonify({'flask': flask[0]})
 
 if __name__ == '__main__':
     app.run(debug=True)
