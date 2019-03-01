@@ -20,9 +20,9 @@ flasks = [
     }
 ]
 
-@app.route('/todo/api/v1.0/tasks', methods=['GET'])
+@app.route('/api/v1/flasks', methods=['GET'])
 def get_tasks():
-    return jsonify({'tasks': tasks})
+    return jsonify({'flasks': flasks})
 
 if __name__ == '__main__':
     app.run(debug=True)
