@@ -33,5 +33,27 @@ def get_flask_by_id(flask_id):
         abort(404)
     return jsonify({'flask': flask[0]})
 
+from flask import make_response
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+from flask import request
+
+@app.route('/api/v1/flasks', methods=['POST'])
+def create_flask():
+    if not request.json or not 'title' in request.json:
+        abort(400)
+    flask = {
+        'id': flasks[-1]['id'] + 1,
+        'title': request.json['title'],
+        'description': request.json.get('description', ""),
+        'origin': request.json.get('origin', ""),
+        'consumed': False
+    }
+    flasks.append(flask)
+    return jsonify({'flask': flask}), 201
+
 if __name__ == '__main__':
     app.run(debug=True)
