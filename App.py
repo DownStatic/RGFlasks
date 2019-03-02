@@ -1,8 +1,9 @@
 #!flask/bin/python
-from flask import Flask, jsonify
+from flask import Flask, jsonify, abort, make_response, request, url_for
 
 app = Flask(__name__)
 
+#Initial seed
 flasks = [
     {
         'id': 1,
@@ -20,12 +21,12 @@ flasks = [
     }
 ]
 
+#Index
 @app.route('/api/v1/flasks', methods=['GET'])
 def get_flasks():
-    return jsonify({'flasks': flasks})
+    return jsonify({'flasks': [make_public_flask(flask) for flask in flasks]})
 
-from flask import abort
-
+#Show
 @app.route('/api/v1/flasks/<int:flask_id>', methods=['GET'])
 def get_flask_by_id(flask_id):
     flask = [flask for flask in flasks if flask['id'] == flask_id]
@@ -33,14 +34,12 @@ def get_flask_by_id(flask_id):
         abort(404)
     return jsonify({'flask': flask[0]})
 
-from flask import make_response
-
+#Error
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
-from flask import request
-
+#Create
 @app.route('/api/v1/flasks', methods=['POST'])
 def create_flask():
     if not request.json or not 'title' in request.json:
@@ -55,6 +54,7 @@ def create_flask():
     flasks.append(flask)
     return jsonify({'flask': flask}), 201
 
+#Update
 @app.route('/api/v1/flasks/<int:flask_id>', methods=['PUT'])
 def update_flask(flask_id):
     flask = [flask for flask in flasks if flask['id'] == flask_id]
@@ -68,7 +68,7 @@ def update_flask(flask_id):
         abort(400)
     if 'origin' in request.json and type(request.json['origin']) is not unicode:
         abort(400)
-    if 'consumed' in request.json and type(request.json['done']) is not bool:
+    if 'consumed' in request.json and type(request.json['consumed']) is not bool:
         abort(400)
     flask[0]['title'] = request.json.get('title', flask[0]['title'])
     flask[0]['description'] = request.json.get('description', flask[0]['description'])
@@ -76,6 +76,7 @@ def update_flask(flask_id):
     flask[0]['consumed'] = request.json.get('consumed', flask[0]['consumed'])
     return jsonify({'flask': flask[0]})
 
+#Delete
 @app.route('/api/v1/flasks/<int:flask_id>', methods=['DELETE'])
 def delete_flask(flask_id):
     flask = [flask for flask in flasks if flask['id'] == flask_id]
@@ -83,6 +84,16 @@ def delete_flask(flask_id):
         abort(404)
     flasks.remove(flask[0])
     return jsonify({'result': True})
+
+#Serializer equivalent
+def make_public_flask(flask):
+    new_flask = {}
+    for field in flask:
+        if field == 'id':
+            new_flask['uri'] = url_for('get_flask_by_id', flask_id=flask['id'], _external=True)
+        else:
+            new_flask[field] = flask[field]
+    return new_flask
 
 if __name__ == '__main__':
     app.run(debug=True)
