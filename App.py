@@ -14,9 +14,9 @@ flasks = [
     },
     {
         'id': 2,
-        'title': u'Arcane Might',
-        'description': u'Grants overflowing arcane magic for a full day.',
-        'origin': u'WoW',
+        'title': u'Infinite Wisdom',
+        'description': u'Grants godlike insight.',
+        'origin': u'Eastern Legend',
         'consumed': False
     }
 ]
@@ -89,9 +89,7 @@ def delete_flask(flask_id):
 def make_public_flask(flask):
     new_flask = {}
     for field in flask:
-        if field == 'id':
-            new_flask['uri'] = url_for('get_flask_by_id', flask_id=flask['id'], _external=True)
-        else:
+        if field != 'id':
             new_flask[field] = flask[field]
     return new_flask
 
