@@ -55,5 +55,34 @@ def create_flask():
     flasks.append(flask)
     return jsonify({'flask': flask}), 201
 
+@app.route('/api/v1/flasks/<int:flask_id>', methods=['PUT'])
+def update_flask(flask_id):
+    flask = [flask for flask in flasks if flask['id'] == flask_id]
+    if len(flask) == 0:
+        abort(404)
+    if not request.json:
+        abort(400)
+    if 'title' in request.json and type(request.json['title']) != unicode:
+        abort(400)
+    if 'description' in request.json and type(request.json['description']) is not unicode:
+        abort(400)
+    if 'origin' in request.json and type(request.json['origin']) is not unicode:
+        abort(400)
+    if 'consumed' in request.json and type(request.json['done']) is not bool:
+        abort(400)
+    flask[0]['title'] = request.json.get('title', flask[0]['title'])
+    flask[0]['description'] = request.json.get('description', flask[0]['description'])
+    flask[0]['origin'] = request.json.get('origin', flask[0]['origin'])
+    flask[0]['consumed'] = request.json.get('consumed', flask[0]['consumed'])
+    return jsonify({'flask': flask[0]})
+
+@app.route('/api/v1/flasks/<int:flask_id>', methods=['DELETE'])
+def delete_flask(flask_id):
+    flask = [flask for flask in flasks if flask['id'] == flask_id]
+    if len(flask) == 0:
+        abort(404)
+    flasks.remove(flask[0])
+    return jsonify({'result': True})
+
 if __name__ == '__main__':
     app.run(debug=True)
