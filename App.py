@@ -1,4 +1,3 @@
-#!flask/bin/python
 from flask import Flask, jsonify, abort, make_response, request, url_for
 
 app = Flask(__name__)
@@ -32,7 +31,7 @@ def get_flask_by_id(flask_id):
     flask = [flask for flask in flasks if flask['id'] == flask_id]
     if len(flask) == 0:
         abort(404)
-    return jsonify({'flask': flask[0]})
+    return jsonify({'flask': make_public_flask(flask[0])})
 
 #Error
 @app.errorhandler(404)
@@ -52,7 +51,7 @@ def create_flask():
         'consumed': False
     }
     flasks.append(flask)
-    return jsonify({'flask': flask}), 201
+    return jsonify({'flask': make_public_flask(flask)}), 201
 
 #Update
 @app.route('/api/v1/flasks/<int:flask_id>', methods=['PUT'])
@@ -74,7 +73,7 @@ def update_flask(flask_id):
     flask[0]['description'] = request.json.get('description', flask[0]['description'])
     flask[0]['origin'] = request.json.get('origin', flask[0]['origin'])
     flask[0]['consumed'] = request.json.get('consumed', flask[0]['consumed'])
-    return jsonify({'flask': flask[0]})
+    return jsonify({'flask': make_public_flask(flask[0])})
 
 #Delete
 @app.route('/api/v1/flasks/<int:flask_id>', methods=['DELETE'])
@@ -85,7 +84,7 @@ def delete_flask(flask_id):
     flasks.remove(flask[0])
     return jsonify({'result': True})
 
-#Serializer equivalent
+#Serializer
 def make_public_flask(flask):
     new_flask = {}
     for field in flask:
